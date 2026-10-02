@@ -1,0 +1,199 @@
+/* =========================================================================
+   API Infrastructure Pipeline — design system + layout
+   Modern, responsive dashboard. Light theme by default, dark via media query.
+   ========================================================================= */
+
+:root {
+  /* Palette */
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f0f2f8;
+  --border: #e3e7ef;
+  --border-strong: #cfd6e4;
+  --text: #1a2233;
+  --text-muted: #5a647a;
+  --text-faint: #8791a5;
+
+  --brand: #4f46e5;
+  --brand-strong: #4338ca;
+  --brand-soft: #eef0fe;
+
+  --online: #16a34a;
+  --online-soft: #e7f6ec;
+  --pending: #d97706;
+  --pending-soft: #fdf1e0;
+  --offline: #dc2626;
+  --offline-soft: #fdeaea;
+
+  --warning: #b45309;
+  --warning-soft: #fef4e6;
+  --error: #b91c1c;
+  --error-soft: #fdecec;
+
+  /* Shape + shadow */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 2px rgba(20, 28, 46, 0.06);
+  --shadow-md: 0 6px 20px rgba(20, 28, 46, 0.08);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --maxw: 1240px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1117;
+    --surface: #161b24;
+    --surface-2: #1d2330;
+    --border: #262d3b;
+    --border-strong: #333c4d;
+    --text: #e7ebf3;
+    --text-muted: #a3adc0;
+    --text-faint: #77839a;
+
+    --brand: #8b87f5;
+    --brand-strong: #a5a2f8;
+    --brand-soft: #1e2340;
+
+    --online-soft: #12261a;
+    --pending-soft: #2a1f0c;
+    --offline-soft: #2a1414;
+    --warning-soft: #2a1f0c;
+    --error-soft: #2a1414;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--brand);
+}
+
+/* Visible focus for keyboard users */
+:where(a, button, input, select):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---- App shell ---- */
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app__main {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.4vw, 22px);
+  flex: 1;
+}
+
+.app__footer {
+  border-top: 1px solid var(--border);
+  padding: 18px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---- Header ---- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: saturate(1.1) blur(8px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px clamp(16px, 3vw, 28px);
+  flex-wrap: wrap;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.header__logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.header__title {
+  margin: 0;
+  font-size: clamp(1.02rem, 2vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header__subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge--sprint {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  border: 1px solid color-mix(in srgb, var(--brand) 25%, transparent);
+}
