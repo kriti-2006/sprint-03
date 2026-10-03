@@ -40,7 +40,7 @@ Open the printed local URL (default `http://localhost:5173`).
 ## Roadmap
 
 - [x] Project scaffold, design tokens and app shell
-- [ ] API service layer with typed error handling
+- [x] API service layer with typed error handling
 - [ ] Skeleton loading and 5-second AbortController timeout
 - [ ] Web Worker processing pipeline
 - [ ] Search, category filter and sorting

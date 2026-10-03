@@ -1,28 +1,57 @@
 /**
- * App — composition root.
+ * App — composition root and orchestration.
  *
- * Day 1: the application shell only (header, main region, footer). The data
- * layer, loading states and Web Worker pipeline are added on top of this.
+ * Data flow:
+ *   1. useProducts fetches the API through the service layer (async/await).
+ *   2. React renders the products, or a distinct state for each failure.
  */
 
+import { Header } from "./components/Header";
+import { ProductGrid } from "./components/ProductGrid";
+import { ErrorState } from "./components/ErrorState";
+import { StateMessage } from "./components/StateMessage";
+import { useProducts } from "./hooks/useProducts";
+
 export default function App() {
+  const { status, products, errorMessage, httpStatus, reload } = useProducts();
+
+  // ----- Decide what to render in the main content region -----
+  const renderContent = () => {
+    if (status === "loading" || status === "idle") {
+      return (
+        <StateMessage
+          icon="⏳"
+          title="Loading products…"
+          description="Fetching the latest data from the API."
+        />
+      );
+    }
+    if (
+      status === "error-network" ||
+      status === "error-http" ||
+      status === "error-malformed"
+    ) {
+      return (
+        <ErrorState
+          status={status}
+          detail={errorMessage}
+          httpStatus={httpStatus}
+          onRetry={reload}
+        />
+      );
+    }
+
+    return <ProductGrid products={products} />;
+  };
+
   return (
     <div className="app">
-      <header className="header">
-        <div className="header__brand">
-          <div className="header__logo" aria-hidden="true">
-            ⬡
-          </div>
-          <div>
-            <h1 className="header__title">API Infrastructure Pipeline</h1>
-            <p className="header__subtitle">Async · Latency · Web Worker</p>
-          </div>
-          <span className="badge badge--sprint">Sprint 03</span>
-        </div>
-      </header>
+      <Header fetchStatus={status} />
 
       <main className="app__main">
-        <p>Project scaffold is running. The product dashboard is built next.</p>
+        <section className="content" aria-label="Products">
+          {renderContent()}
+        </section>
       </main>
 
       <footer className="app__footer">
