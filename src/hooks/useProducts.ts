@@ -1,16 +1,21 @@
 /**
- * useProducts — data-fetching hook (Phase 1).
+ * useProducts — data-fetching hook (Phase 1 + Phase 2 timeout).
  *
  * Owns the request lifecycle:
  *   - calls the API service (never fetch directly)
- *   - creates an AbortController per request so an unmount or refetch cancels
- *     the in-flight request instead of setting state on a stale component
- *   - maps typed API errors to a discriminated status the UI can render
+ *   - enforces a hard 5000ms timeout via AbortController
+ *   - distinguishes a TIMEOUT abort from a COMPONENT-CANCEL abort, so we never
+ *     show "Request Timed Out" for an ordinary unmount/refetch (requirement #16)
+ *   - cleans up the timer and controller in every exit path
+ *
+ * Exposes a discriminated status the UI maps to distinct states.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchProducts, ApiError } from "../services/api";
 import type { Product } from "../types/product";
+
+export const REQUEST_TIMEOUT_MS = 5000;
 
 export type FetchStatus =
   | "idle"
@@ -18,7 +23,8 @@ export type FetchStatus =
   | "success"
   | "error-network"
   | "error-http"
-  | "error-malformed";
+  | "error-malformed"
+  | "error-timeout";
 
 interface UseProductsResult {
   status: FetchStatus;
@@ -40,12 +46,26 @@ export function useProducts(): UseProductsResult {
   // Bump to trigger a re-fetch without changing other deps.
   const [reloadToken, setReloadToken] = useState(0);
 
+  // Tracks the currently in-flight controller so cleanup can cancel it.
+  const activeControllerRef = useRef<AbortController | null>(null);
+
   const reload = useCallback(() => {
     setReloadToken((t) => t + 1);
   }, []);
 
   useEffect(() => {
     const controller = new AbortController();
+    activeControllerRef.current = controller;
+
+    // Distinguishes *why* the request was aborted. Only a timeout should show
+    // the timeout UI; a component-cancel is silent.
+    let timedOut = false;
+    let cancelledByCleanup = false;
+
+    const timeoutId = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, REQUEST_TIMEOUT_MS);
 
     setStatus("loading");
     setErrorMessage(null);
@@ -57,8 +77,16 @@ export function useProducts(): UseProductsResult {
         setProducts(data);
         setStatus("success");
       } catch (error) {
-        // Aborted by cleanup (unmount/refetch) — nothing to show.
+        // Abort path: classify the reason.
         if (error instanceof DOMException && error.name === "AbortError") {
+          if (timedOut) {
+            setStatus("error-timeout");
+            setErrorMessage(
+              "The server took too long to respond. Please try again.",
+            );
+          }
+          // If cancelled by cleanup, do nothing — component is gone/refetching.
+          if (cancelledByCleanup) return;
           return;
         }
 
@@ -81,12 +109,19 @@ export function useProducts(): UseProductsResult {
         setErrorMessage(
           error instanceof Error ? error.message : "An unexpected error occurred.",
         );
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     })();
 
-    // Cleanup: cancel the in-flight request on unmount or before a re-fetch.
+    // Cleanup: cancel in-flight request on unmount or before a re-fetch.
     return () => {
-      controller.abort();
+      cancelledByCleanup = true;
+      window.clearTimeout(timeoutId);
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
+      activeControllerRef.current = null;
     };
   }, [reloadToken]);
 

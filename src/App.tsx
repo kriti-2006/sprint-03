@@ -2,7 +2,7 @@
  * App — composition root and orchestration.
  *
  * Data flow:
- *   1. useProducts fetches the API through the service layer (async/await).
+ *   1. useProducts fetches the API (async/await, AbortController 5s timeout).
  *   2. React renders the products, or a distinct state for each failure.
  */
 
@@ -10,6 +10,7 @@ import { Header } from "./components/Header";
 import { ProductGrid } from "./components/ProductGrid";
 import { ErrorState } from "./components/ErrorState";
 import { StateMessage } from "./components/StateMessage";
+import { TimeoutState } from "./components/TimeoutState";
 import { useProducts } from "./hooks/useProducts";
 
 export default function App() {
@@ -25,6 +26,9 @@ export default function App() {
           description="Fetching the latest data from the API."
         />
       );
+    }
+    if (status === "error-timeout") {
+      return <TimeoutState onRetry={reload} />;
     }
     if (
       status === "error-network" ||

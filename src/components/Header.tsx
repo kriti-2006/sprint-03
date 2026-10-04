@@ -14,6 +14,8 @@ function apiStatusLabel(status: FetchStatus): { label: string; tone: string } {
       return { label: "Connecting", tone: "pending" };
     case "success":
       return { label: "Online", tone: "online" };
+    case "error-timeout":
+      return { label: "Timed out", tone: "offline" };
     case "idle":
       return { label: "Idle", tone: "pending" };
     default:
