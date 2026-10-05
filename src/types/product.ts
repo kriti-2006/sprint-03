@@ -14,3 +14,28 @@ export interface Product {
   rating: number;
   thumbnail: string;
 }
+
+/** Aggregate statistics computed by the Web Worker over the processed dataset. */
+export interface ProductStatistics {
+  count: number;
+  averagePrice: number;
+  minPrice: number;
+  maxPrice: number;
+  averageRating: number;
+  categories: number;
+}
+
+/** Fields the user can sort by. Values map to worker sort strategies. */
+export type SortBy =
+  | "relevance"
+  | "price-asc"
+  | "price-desc"
+  | "rating-desc"
+  | "title-asc";
+
+/** The filter/sort criteria the UI collects and hands to the worker. */
+export interface ProcessOptions {
+  searchTerm: string;
+  category: string; // "all" means no category filter
+  sortBy: SortBy;
+}
