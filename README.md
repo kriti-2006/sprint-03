@@ -41,7 +41,7 @@ Open the printed local URL (default `http://localhost:5173`).
 
 - [x] Project scaffold, design tokens and app shell
 - [x] API service layer with typed error handling
-- [ ] Skeleton loading and 5-second AbortController timeout
+- [x] Skeleton loading and 5-second AbortController timeout
 - [ ] Web Worker processing pipeline
 - [ ] Search, category filter and sorting
 - [ ] Large-dataset demo, statistics and architecture panel
