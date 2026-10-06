@@ -43,7 +43,7 @@ Open the printed local URL (default `http://localhost:5173`).
 - [x] API service layer with typed error handling
 - [x] Skeleton loading and 5-second AbortController timeout
 - [x] Web Worker processing pipeline
-- [ ] Search, category filter and sorting
+- [x] Search, category filter and sorting
 - [ ] Large-dataset demo, statistics and architecture panel
 - [ ] Refactoring for testability
 - [ ] Unit tests, bug fixes and CI
