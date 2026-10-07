@@ -1,21 +1,25 @@
 /**
  * App — composition root and orchestration.
  *
- * Data flow:
+ * Data flow (the whole point of the sprint):
  *   1. useProducts fetches the API (async/await, AbortController 5s timeout).
- *   2. Whenever the products or the (debounced) filter/sort criteria change,
- *      the records + criteria are handed to the Web Worker via postMessage.
- *   3. The worker filters/sorts/aggregates OFF the main thread and posts back.
- *   4. React renders the processed result.
+ *   2. The real records are expanded into a larger in-memory processing dataset.
+ *   3. Whenever the dataset or the (debounced) filter/sort criteria change, the
+ *      dataset + criteria are handed to the Web Worker via postMessage.
+ *   4. The worker filters/sorts/aggregates OFF the main thread and posts back.
+ *   5. React renders the processed result.
  *
  * The main thread never performs the heavy filtering/sorting itself.
  */
 
 import { useEffect, useMemo, useState } from "react";
 import { Header } from "./components/Header";
+import { Stats } from "./components/Stats";
 import { SearchControls } from "./components/SearchControls";
+import { DatasetControl } from "./components/DatasetControl";
 import { ProcessingIndicator } from "./components/ProcessingIndicator";
 import { ProductGrid } from "./components/ProductGrid";
+import { ArchitecturePanel } from "./components/ArchitecturePanel";
 import { ErrorState } from "./components/ErrorState";
 import { TimeoutState } from "./components/TimeoutState";
 import { EmptyState } from "./components/EmptyState";
@@ -23,8 +27,11 @@ import { WorkerErrorState } from "./components/WorkerErrorState";
 import { useProducts } from "./hooks/useProducts";
 import { useDataProcessor } from "./hooks/useDataProcessor";
 import { useDebouncedValue } from "./hooks/useDebouncedValue";
+import { expandDataset } from "./utils/expandDataset";
 import type { SortBy } from "./types/product";
 
+const DATASET_OPTIONS = [1000, 5000, 10000, 25000];
+const DEFAULT_DATASET_SIZE = 10000;
 const SEARCH_DEBOUNCE_MS = 250;
 
 export default function App() {
@@ -40,6 +47,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState<SortBy>("relevance");
+  const [datasetSize, setDatasetSize] = useState(DEFAULT_DATASET_SIZE);
 
   const debouncedSearch = useDebouncedValue(searchTerm, SEARCH_DEBOUNCE_MS);
 
@@ -49,15 +57,28 @@ export default function App() {
     return Array.from(set).sort();
   }, [products]);
 
-  // Dispatch work to the worker whenever the data or criteria change.
+  // Expand the genuine records into the processing dataset (memoized).
+  const processingDataset = useMemo(
+    () => expandDataset(products, datasetSize),
+    [products, datasetSize],
+  );
+
+  // Dispatch work to the worker whenever the dataset or criteria change.
   useEffect(() => {
-    if (status !== "success" || products.length === 0) return;
-    process(products, {
+    if (status !== "success" || processingDataset.length === 0) return;
+    process(processingDataset, {
       searchTerm: debouncedSearch,
       category,
       sortBy,
     });
-  }, [status, products, debouncedSearch, category, sortBy, process]);
+  }, [
+    status,
+    processingDataset,
+    debouncedSearch,
+    category,
+    sortBy,
+    process,
+  ]);
 
   const handleReset = () => {
     setSearchTerm("");
@@ -96,7 +117,7 @@ export default function App() {
         <WorkerErrorState
           detail={workerError}
           onRetry={() =>
-            process(products, {
+            process(processingDataset, {
               searchTerm: debouncedSearch,
               category,
               sortBy,
@@ -128,6 +149,21 @@ export default function App() {
       <Header fetchStatus={status} />
 
       <main className="app__main">
+        <Stats
+          apiRecords={products.length}
+          processingRecords={
+            status === "success" ? processingDataset.length : 0
+          }
+          filteredRecords={result ? result.filtered : 0}
+          processorStatus={processorStatus}
+          statistics={result ? result.statistics : null}
+        />
+
+        <ArchitecturePanel
+          processorStatus={processorStatus}
+          lastDurationMs={result ? result.durationMs : null}
+        />
+
         <div className="toolbar">
           <SearchControls
             searchTerm={searchTerm}
@@ -140,6 +176,13 @@ export default function App() {
             onCategoryChange={setCategory}
             onSortChange={setSortBy}
             onReset={handleReset}
+          />
+          <DatasetControl
+            value={datasetSize}
+            options={DATASET_OPTIONS}
+            apiRecords={products.length}
+            disabled={controlsDisabled}
+            onChange={setDatasetSize}
           />
         </div>
 

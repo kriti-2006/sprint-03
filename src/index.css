@@ -656,3 +656,212 @@ a {
   padding: 3px 7px;
   border-radius: 6px;
 }
+/* ---- Stats ---- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card__label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.stat-card__value {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card__value--status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+}
+
+.stat-card__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.stat-card--processing {
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+.stat-card--error {
+  border-color: color-mix(in srgb, var(--error) 40%, var(--border));
+}
+
+/* ---- Architecture panel ---- */
+.architecture {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.architecture__title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.architecture__subtitle {
+  margin: 2px 0 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.pipeline {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.pipeline__node {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 120px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pipeline__node--worker {
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
+  background: var(--brand-soft);
+}
+
+.pipeline__node--active {
+  box-shadow: 0 0 0 2px var(--brand);
+}
+
+.pipeline__badge {
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.pipeline__desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.pipeline__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: 0.9rem;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.pipeline__arrow code {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: var(--text-muted);
+}
+
+.pipeline__pulse {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.architecture__facts {
+  margin: 16px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.architecture__facts > div {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.architecture__facts dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.architecture__facts dd {
+  margin: 4px 0 0;
+  font-size: 0.84rem;
+}
+
+.architecture__facts code {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+
+/* ---- Dataset control ---- */
+.dataset-control {
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dataset-control__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.dataset-control__row .controls__input {
+  width: auto;
+  min-width: 180px;
+}
+
+.dataset-control__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
