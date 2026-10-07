@@ -22,6 +22,11 @@ function ProductCardBase({ product }: ProductCardProps) {
           loading="lazy"
           decoding="async"
         />
+        {product.synthetic && (
+          <span className="product-card__tag" title="Synthetic copy for worker stress test">
+            copy
+          </span>
+        )}
       </div>
       <div className="product-card__body">
         <span className="product-card__category">{product.category}</span>

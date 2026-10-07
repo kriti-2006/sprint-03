@@ -13,6 +13,8 @@ export interface Product {
   price: number;
   rating: number;
   thumbnail: string;
+  /** Present on synthetically expanded records so the UI can label copies. */
+  synthetic?: boolean;
 }
 
 /** Aggregate statistics computed by the Web Worker over the processed dataset. */

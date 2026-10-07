@@ -641,3 +641,18 @@ a {
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+/* Synthetic-copy tag on product cards */
+.product-card__tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--text) 78%, transparent);
+  color: var(--surface);
+  padding: 3px 7px;
+  border-radius: 6px;
+}
