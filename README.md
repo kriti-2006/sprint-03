@@ -44,7 +44,7 @@ Open the printed local URL (default `http://localhost:5173`).
 - [x] Skeleton loading and 5-second AbortController timeout
 - [x] Web Worker processing pipeline
 - [x] Search, category filter and sorting
-- [ ] Large-dataset demo, statistics and architecture panel
+- [x] Large-dataset demo, statistics and architecture panel
 - [ ] Refactoring for testability
 - [ ] Unit tests, bug fixes and CI
 - [ ] Deployment and final documentation
