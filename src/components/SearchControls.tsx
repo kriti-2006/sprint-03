@@ -7,6 +7,7 @@
  */
 
 import type { SortBy } from "../types/product";
+import { formatCategory } from "../utils/format";
 
 interface SearchControlsProps {
   searchTerm: string;
@@ -28,13 +29,6 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: "rating-desc", label: "Rating: High to Low" },
   { value: "title-asc", label: "Title: A–Z" },
 ];
-
-function prettyCategory(value: string): string {
-  return value
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
 
 export function SearchControls({
   searchTerm,
@@ -83,7 +77,7 @@ export function SearchControls({
           <option value="all">All categories</option>
           {categories.map((c) => (
             <option key={c} value={c}>
-              {prettyCategory(c)}
+              {formatCategory(c)}
             </option>
           ))}
         </select>

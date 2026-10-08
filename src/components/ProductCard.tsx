@@ -5,7 +5,7 @@
 
 import { memo } from "react";
 import type { Product } from "../types/product";
-import { formatPrice, formatRating } from "../utils/format";
+import { formatCategory, formatPrice, formatRating } from "../utils/format";
 
 interface ProductCardProps {
   product: Product;
@@ -29,7 +29,9 @@ function ProductCardBase({ product }: ProductCardProps) {
         )}
       </div>
       <div className="product-card__body">
-        <span className="product-card__category">{product.category}</span>
+        <span className="product-card__category">
+          {formatCategory(product.category)}
+        </span>
         <h3 className="product-card__title" title={product.title}>
           {product.title}
         </h3>

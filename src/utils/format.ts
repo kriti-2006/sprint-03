@@ -18,3 +18,11 @@ export function formatNumber(value: number): string {
 export function formatRating(value: number): string {
   return value.toFixed(2);
 }
+
+/** Turn an API category slug into a display label: "home-decoration" → "Home Decoration". */
+export function formatCategory(value: string): string {
+  return value
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
