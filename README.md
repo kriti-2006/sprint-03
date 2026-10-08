@@ -45,6 +45,6 @@ Open the printed local URL (default `http://localhost:5173`).
 - [x] Web Worker processing pipeline
 - [x] Search, category filter and sorting
 - [x] Large-dataset demo, statistics and architecture panel
-- [ ] Refactoring for testability
+- [x] Refactoring for testability
 - [ ] Unit tests, bug fixes and CI
 - [ ] Deployment and final documentation

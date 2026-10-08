@@ -12,7 +12,7 @@
  * The main thread never performs the heavy filtering/sorting itself.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Header } from "./components/Header";
 import { Stats } from "./components/Stats";
 import { SearchControls } from "./components/SearchControls";
@@ -28,7 +28,7 @@ import { useProducts } from "./hooks/useProducts";
 import { useDataProcessor } from "./hooks/useDataProcessor";
 import { useDebouncedValue } from "./hooks/useDebouncedValue";
 import { expandDataset } from "./utils/expandDataset";
-import type { SortBy } from "./types/product";
+import type { ProcessOptions, SortBy } from "./types/product";
 
 const DATASET_OPTIONS = [1000, 5000, 10000, 25000];
 const DEFAULT_DATASET_SIZE = 10000;
@@ -63,22 +63,22 @@ export default function App() {
     [products, datasetSize],
   );
 
+  // The criteria handed to the worker (search uses the debounced value).
+  const processOptions = useMemo<ProcessOptions>(
+    () => ({ searchTerm: debouncedSearch, category, sortBy }),
+    [debouncedSearch, category, sortBy],
+  );
+
+  // Single entry point for dispatching work — used by the effect and Retry.
+  const runProcessing = useCallback(() => {
+    if (status !== "success" || processingDataset.length === 0) return;
+    process(processingDataset, processOptions);
+  }, [status, processingDataset, processOptions, process]);
+
   // Dispatch work to the worker whenever the dataset or criteria change.
   useEffect(() => {
-    if (status !== "success" || processingDataset.length === 0) return;
-    process(processingDataset, {
-      searchTerm: debouncedSearch,
-      category,
-      sortBy,
-    });
-  }, [
-    status,
-    processingDataset,
-    debouncedSearch,
-    category,
-    sortBy,
-    process,
-  ]);
+    runProcessing();
+  }, [runProcessing]);
 
   const handleReset = () => {
     setSearchTerm("");
@@ -113,18 +113,7 @@ export default function App() {
 
     // status === "success" from here on.
     if (processorStatus === "error") {
-      return (
-        <WorkerErrorState
-          detail={workerError}
-          onRetry={() =>
-            process(processingDataset, {
-              searchTerm: debouncedSearch,
-              category,
-              sortBy,
-            })
-          }
-        />
-      );
+      return <WorkerErrorState detail={workerError} onRetry={runProcessing} />;
     }
 
     // First processing pass before any result → keep skeletons (stable layout).

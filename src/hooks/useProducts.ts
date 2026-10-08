@@ -11,7 +11,7 @@
  * Exposes a discriminated status the UI maps to distinct states.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchProducts, ApiError } from "../services/api";
 import type { Product } from "../types/product";
 
@@ -46,21 +46,16 @@ export function useProducts(): UseProductsResult {
   // Bump to trigger a re-fetch without changing other deps.
   const [reloadToken, setReloadToken] = useState(0);
 
-  // Tracks the currently in-flight controller so cleanup can cancel it.
-  const activeControllerRef = useRef<AbortController | null>(null);
-
   const reload = useCallback(() => {
     setReloadToken((t) => t + 1);
   }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    activeControllerRef.current = controller;
 
     // Distinguishes *why* the request was aborted. Only a timeout should show
-    // the timeout UI; a component-cancel is silent.
+    // the timeout UI; an abort from cleanup (unmount/refetch) is silent.
     let timedOut = false;
-    let cancelledByCleanup = false;
 
     const timeoutId = window.setTimeout(() => {
       timedOut = true;
@@ -85,8 +80,8 @@ export function useProducts(): UseProductsResult {
               "The server took too long to respond. Please try again.",
             );
           }
-          // If cancelled by cleanup, do nothing — component is gone/refetching.
-          if (cancelledByCleanup) return;
+          // Otherwise it was cancelled by cleanup — the component is
+          // unmounting or refetching, so there is nothing to show.
           return;
         }
 
@@ -116,12 +111,10 @@ export function useProducts(): UseProductsResult {
 
     // Cleanup: cancel in-flight request on unmount or before a re-fetch.
     return () => {
-      cancelledByCleanup = true;
       window.clearTimeout(timeoutId);
       if (!controller.signal.aborted) {
         controller.abort();
       }
-      activeControllerRef.current = null;
     };
   }, [reloadToken]);
 
